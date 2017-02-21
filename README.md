@@ -22,3 +22,6 @@ SynthMaster is a "soft-synth" VST instrument. This is a versatile synth, but the
   port install GraphicsMagick 		# or brew, or install manually; also add executable to path
   npm install						# loads node dependies into a node_modules subfolder
 ```
+
+##TIPS
+ - There are some skins in there in folders with unhelpful names (New Skin ###). Rename them to match the skin name. The skin name is in the first line of interface.xml in the folder. ```<InterfaceDefinition name="Default Skin-Blue"/>```
