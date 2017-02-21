@@ -11,6 +11,7 @@
 const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
 const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder; must have write access!
+const debug = false;
 
 /////////
 
@@ -42,7 +43,7 @@ var bottomRegEx = new RegExp(/(bottom\s*=\s*")([^"]+)(?=")/gmi);
 var leftRegEx = new RegExp(/(left\s*=\s*")([^"]+)(?=")/gmi);
 var rightRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
 var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
-var radiusRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
+var radiusRegEx = new RegExp(/(radius\s*=\s*")([^"]+)(?=")/gmi);
 
 // Process each XML statement from < to >
 // This doesn't have to be fast. Chill.
@@ -57,7 +58,8 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 
 	else
 	{
-	console.log("FOUND tag:" + tag + " attr:" + attributes);
+		if(debug)
+			console.log("FOUND tag:" + tag + " attr:" + attributes);
 
 		// If contains radius, magnify and round value
 		attributes = attributes.replace(radiusRegEx, function(all, left, value)
@@ -71,65 +73,13 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 			return left + Math.floor(value * magnification);
 		});
 
-		// attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
-		// attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx);
-
-		// function replacePairedAttr(attributes, re1, re2)
-		// {
-			
-		// }
-
-		// If contains top, magnify and round value, then adjust bottom by the rounded old difference
-		if(attributes.match(topRegEx))
-		{
-			var oldTop = 0;
-			var newTop = 0;
-			attributes = attributes.replace(topRegEx, function(all, left, value)
-			{
-				console.log("!!! top value:" + value);
-				oldTop = parseInt(value);
-				newTop = Math.round(value * magnification);
-				return left + newTop;
-			});
-			attributes = attributes.replace(bottomRegEx, function(all, left, value)
-			{				
-				console.log("*** bottom value:" + value + " oldTop:" + oldTop + " newTop:" + newTop);
-				return left + (Math.ceil((value - oldTop) * magnification) + newTop);
-			});
-		}
-
-		// If contains unpaired bottom, magnify and round value -- don't expect to see this, but just in case
-		else attributes = attributes.replace(bottomRegEx, function(all, left, alue)
-		{
-			return left + Math.round(value * magnification);
-		});
-
-		// If contains left, magnify and round value, then adjust right by the rounded old difference
-		if(attributes.match(leftRegEx))
-		{
-			var oldLeft = 0;
-			var newLeft = 0;
-			attributes = attributes.replace(leftRegEx, function(all, left, value)
-			{
-				console.log("!!! left value:" + value);
-				oldLeft = parseInt(value);
-				newLeft = Math.round(value * magnification);
-				return left + newLeft;
-			});
-			attributes = attributes.replace(rightRegEx, function(all, left, value)
-			{				
-				return left + (Math.ceil((value - oldLeft) * magnification) + newLeft);
-			});
-		}
-
-		// If contains unpaired right, magnify and round value -- don't expect to see this, but just in case
-		else attributes = attributes.replace(rightRegEx, function(all, left, value)
-		{
-			return left + Math.round(value * magnification);
-		});				
+		attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
+		attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx);
 	}
 
-	console.log("NEW ATTR:" + attributes);
+	if(debug)
+		console.log("NEW ATTR:" + attributes);
+
 	return "<" + tag + " " + attributes + ">";
 });
 
@@ -202,4 +152,36 @@ function logError(msg)
 {
 	console.log("###################### ERROR ######################");
 	console.log(msg);
+}
+
+// This replaces pairs of top/bottom or left/right attributes in a string.
+// The second attribute (bottom/right) is calculated independently, so it's guaranteed to match the image/sprite dimensions.
+// Expect regex to have two captures: all (everything to the left of the value) and value (the value between quotes).
+// The end quote should be matched but not replaced by using a negative lookahead assertion.
+function replacePairedAttr(attributes, firstRegEx, secondRegEx)
+{
+	// If contains first, magnify and round value, then adjust bottom by the rounded old difference
+	if(attributes.match(firstRegEx))
+	{
+		var oldFirst = 0;
+		var newFirst = 0;
+		attributes = attributes.replace(firstRegEx, function(all, left, value)
+		{
+			oldFirst = parseInt(value);
+			newFirst = Math.round(oldFirst * magnification);
+			return left + newFirst;
+		});
+		attributes = attributes.replace(secondRegEx, function(all, left, oldSecond)
+		{				
+			return left + (Math.ceil((oldSecond - oldFirst) * magnification + newFirst));
+		});
+	}
+
+	// If contains unpaired second, magnify and round value -- don't expect to see this, but just in case
+	else attributes = attributes.replace(secondRegEx, function(all, left, alue)
+	{
+		return left + Math.round(value * magnification);
+	});
+
+	return attributes;
 }
