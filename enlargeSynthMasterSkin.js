@@ -9,8 +9,8 @@
 //	 - Fractional magnifications may cause alignment issues; in the case of Tranquil Blue you can see little red lines.
 //   - Your SynthMaster skins folder must be have read/write access.
 //   - You may need to reboot your DAW to see skin changes.
-//   - Hasn't been tested on PC.
-//   - There are some skins this might not work on; if your DAW crashes, you win!
+//   - Hasn't been tested on PC. Or really, you know, much at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
+//   - There are some skins this might not work on; if your DAW crashes, you win! 
 // 
 // USAGE:
 //   - Configure your settings below.
