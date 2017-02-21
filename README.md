@@ -3,8 +3,8 @@ SynthMaster is a "soft-synth" VST instrument. This is a versatile synth, but the
 
 ##CAVEATS
   - Images may be a little blurry, that's normal. Don't panic.
-  - Text labels may become too large to fit, causing maythem, particular in the matrix; you can try supplying a negative value to fontAdjust to reduce this issue.
-  - Fractional magnifications may cause alignment issues; in the case of Tranquil Blue you can see little red lines.
+  - If text labels (that is, not images with text) become too large, you can try supplying a negative value to fontAdjust.
+  - There are still some alignment issues due to rounding. This may make some of the seams between layout elements visible.
   - Your SynthMaster skins folder must be have read/write access.
   - You may need to reboot your DAW to see skin changes.
   - Hasn't been tested on PC. Or really, you know, much at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
