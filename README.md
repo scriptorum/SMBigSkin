@@ -1,5 +1,5 @@
 # enlargeSynthMasterSkin
-Enlarges a SynthMaster skin by the supplied magnification.
+SynthMaster is a "soft-synth" VST instrument. This is a versatile synth, but the supplied skins are a bit small, and it's not easy to reskin. This is a script to enlarge an existing skin by any amount.
 
 ##CAVEATS
   - Images may be a little blurry, that's normal. Don't panic.
