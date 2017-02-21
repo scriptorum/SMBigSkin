@@ -33,39 +33,104 @@ if(!fs.existsSync(sourceXml))
 console.log("Ensuring target folder exists");
 fs.ensureDirSync(targetFolder);
 
+// I'm not using an XML parser because some of the skins have malformed XML
 console.log("Processing XML");
 var xml = fs.readFileSync(sourceXml, "UTF8");
 
-// Replace lead line
-xml = xml.replace(/(InterfaceDefinition\s+name\s?=\s?")[^"]+("\s?id\s?=\s?")[^"]+(")/m, function(m, k1, k2, k3)
-{
-	var str = k1 + targetName + k2 + uuid.v4() + k3;
-	return str;
-});
+var topRegEx = new RegExp(/(top\s*=\s*")([^"]+)(?=")/gmi);
+var bottomRegEx = new RegExp(/(bottom\s*=\s*")([^"]+)(?=")/gmi);
+var leftRegEx = new RegExp(/(left\s*=\s*")([^"]+)(?=")/gmi);
+var rightRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
+var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
+var radiusRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
 
-// Resize positioning of things
-// TODO I might have to actually grab both top and bottom to ensure they are ranged correctly
-xml = xml.replace(/((radius|size|left|right|top|bottom)\s?=\s?")(\d+)(")/gmi, function(match, left, attr, value, right)
+// Process each XML statement from < to >
+// This doesn't have to be fast. Chill.
+xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 {
-	// switch(k2.toLowerCase()) ... handle font sizes differently?
-	// Magnify positioning
-	var newVal = value * magnification;
-
-	switch(attr)
+	// If InterfaceDefinition, set targetName and uuid and stop
+	if(tag.toLowerCase() == "interfacedefinition")
 	{
-		case 'top':
-		case 'bottom':
-		case 'left':
-		case 'right':
-		newVal = Math.ceil(newVal);
-		break;
-
-		default:
-		newVal = Math.floor(newVal);
+		attributes = attributes.replace(/name\s*=\s*"[^"]+"/mi, 'name="' + targetName + '"');
+		attributes = attributes.replace(/id\s*=\s*"[^"]+"/mi, 'id="' + uuid.v4() + '"');
 	}
 
-	var str = left + Math.round(newVal) + right;
-	return str;
+	else
+	{
+	console.log("FOUND tag:" + tag + " attr:" + attributes);
+
+		// If contains radius, magnify and round value
+		attributes = attributes.replace(radiusRegEx, function(all, left, value)
+		{
+			return left + Math.round(value * magnification);
+		});
+
+		// If contains size, magnify and floor value
+		attributes = attributes.replace(sizeRegEx, function(all, left, value)
+		{
+			return left + Math.floor(value * magnification);
+		});
+
+		// attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
+		// attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx);
+
+		// function replacePairedAttr(attributes, re1, re2)
+		// {
+			
+		// }
+
+		// If contains top, magnify and round value, then adjust bottom by the rounded old difference
+		if(attributes.match(topRegEx))
+		{
+			var oldTop = 0;
+			var newTop = 0;
+			attributes = attributes.replace(topRegEx, function(all, left, value)
+			{
+				console.log("!!! top value:" + value);
+				oldTop = parseInt(value);
+				newTop = Math.round(value * magnification);
+				return left + newTop;
+			});
+			attributes = attributes.replace(bottomRegEx, function(all, left, value)
+			{				
+				console.log("*** bottom value:" + value + " oldTop:" + oldTop + " newTop:" + newTop);
+				return left + (Math.ceil((value - oldTop) * magnification) + newTop);
+			});
+		}
+
+		// If contains unpaired bottom, magnify and round value -- don't expect to see this, but just in case
+		else attributes = attributes.replace(bottomRegEx, function(all, left, alue)
+		{
+			return left + Math.round(value * magnification);
+		});
+
+		// If contains left, magnify and round value, then adjust right by the rounded old difference
+		if(attributes.match(leftRegEx))
+		{
+			var oldLeft = 0;
+			var newLeft = 0;
+			attributes = attributes.replace(leftRegEx, function(all, left, value)
+			{
+				console.log("!!! left value:" + value);
+				oldLeft = parseInt(value);
+				newLeft = Math.round(value * magnification);
+				return left + newLeft;
+			});
+			attributes = attributes.replace(rightRegEx, function(all, left, value)
+			{				
+				return left + (Math.ceil((value - oldLeft) * magnification) + newLeft);
+			});
+		}
+
+		// If contains unpaired right, magnify and round value -- don't expect to see this, but just in case
+		else attributes = attributes.replace(rightRegEx, function(all, left, value)
+		{
+			return left + Math.round(value * magnification);
+		});				
+	}
+
+	console.log("NEW ATTR:" + attributes);
+	return "<" + tag + " " + attributes + ">";
 });
 
 // Save XML
@@ -73,7 +138,7 @@ fs.writeFileSync(targetXml, xml, {encoding:"UTF8"});
 
 console.log("Resizing images");
 
-// Find all image tags
+// Find all image tags and use them to find all images and govern their magnification method
 var waitingFor = 0;
 xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 {
@@ -123,6 +188,7 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 	});	
 });
 
+// If hate this, but I hate even more organizing everything into an array and using a third party library to manage callback hell
 if(waitingFor > 0)
 	console.log("Waiting for processes to finish");
 
@@ -137,6 +203,3 @@ function logError(msg)
 	console.log("###################### ERROR ######################");
 	console.log(msg);
 }
-
-// TODO
-// - NodeJS is overly callbacky. Try promises?
