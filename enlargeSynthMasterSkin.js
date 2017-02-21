@@ -59,7 +59,7 @@ var bottomRegEx = new RegExp(/(bottom\s*=\s*")([^"]+)(?=")/gmi);
 var leftRegEx = new RegExp(/(left\s*=\s*")([^"]+)(?=")/gmi);
 var rightRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
 var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
-var radiusRegEx = new RegExp(/(radius\s*=\s*")([^"]+)(?=")/gmi);
+var miscRegEx = new RegExp(/((?:radius|rowHeight)\s*=\s*")([^"]+)(?=")/gmi);
 
 // Process each XML statement from < to >
 // This is not fast code. It doesn't have to be. So chill.
@@ -77,20 +77,23 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 		if(debug)
 			console.log("FOUND tag:" + tag + " attr:" + attributes);
 
-		// If contains radius, magnify and round value
-		attributes = attributes.replace(radiusRegEx, function(all, left, value)
+		// Magnify radius and matrix row height
+		attributes = attributes.replace(miscRegEx, function(all, left, value)
 		{
 			return left + Math.round(value * magnification);
 		});
 
-		// If contains size, magnify and floor value
+		// Magnify font size
 		attributes = attributes.replace(sizeRegEx, function(all, left, value)
 		{
 			var newSize = Math.floor(value * magnification + fontAdjust);
 			return left + newSize;
 		});
 
+		// Magnify top and bottom
 		attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
+
+		// Magnify left and right
 		attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx);
 	}
 
