@@ -4,9 +4,8 @@
 // 
 // CAVEATS:
 //   - Images may be a little blurry, that's normal. Don't panic.
-//	 - Text labels may become too large to fit, causing maythem, particular in the matrix; 
-//	   you can try supplying a negative value to fontAdjust to reduce this issue.
-//	 - Fractional magnifications may cause alignment issues; in the case of Tranquil Blue you can see little red lines.
+//	 - Set magnification to your desired scaling. 2.0 means 200% enlargement, for example.
+// 	 - Non-image text labels are magnified as well; for fine tuning font sizes, set fontAdjust; e.g.: magnification 2.0 and fontAdjust -.5 means everything will be enlarged 200% except for fonts, which will be enlarged 150%
 //   - Your SynthMaster skins folder must be have read/write access.
 //   - You may need to reboot your DAW to see skin changes.
 //   - Hasn't been tested on PC. Or really, you know, much at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
@@ -24,10 +23,10 @@
 //
 
 ////// CONFIGURATION //////
-const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
 const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
+const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
+const fontAdjust = -0.10 ; // This value is added to the magnification before being applied to text labels; raise or lower to adjust relative text enlargement
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
-const fontAdjust = -1; // Text is magnified too; this adjusts all font label pitches up (+1 e.g.) or down (-1 e.g.) after magnification
 const debug = false;
 ////// CONFIGURATION //////
 
@@ -59,6 +58,7 @@ var bottomRegEx = new RegExp(/(bottom\s*=\s*")([^"]+)(?=")/gmi);
 var leftRegEx = new RegExp(/(left\s*=\s*")([^"]+)(?=")/gmi);
 var rightRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
 var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
+var widthRegEx = new RegExp(/((?:arrowWidth|buttonWidth)\s*=\s*")([^"]+)(?=")/gmi);
 var miscRegEx = new RegExp(/((?:radius|rowHeight)\s*=\s*")([^"]+)(?=")/gmi);
 
 // Process each XML statement from < to >
@@ -84,9 +84,17 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 		});
 
 		// Magnify font size
+		// Round down by default here
 		attributes = attributes.replace(sizeRegEx, function(all, left, value)
 		{
-			var newSize = Math.floor(value * magnification + fontAdjust);
+			var newSize = Math.floor(value * (magnification + fontAdjust));
+			return left + newSize;
+		});
+
+		// Magnify tab button and arrow sizes
+		attributes = attributes.replace(widthRegEx, function(all, left, value)
+		{
+			var newSize = Math.round(value * (magnification));
 			return left + newSize;
 		});
 
