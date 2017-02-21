@@ -2,18 +2,34 @@
 //
 // Enlarges a SynthMaster skin by the supplied magnification.
 // 
-// DEPENDENCIES:
-// port install GraphicsMagick 		# or brew, or install manually; also add executable to path
-// npm install						# loads node dependies into a node_modules subfolder
+// CAVEATS:
+//   - Images may be a little blurry, that's normal. Don't panic.
+//	 - Text labels may become too large to fit, causing maythem, particular in the matrix; 
+//	   you can try supplying a negative value to fontAdjust to reduce this issue.
+//	 - Fractional magnifications may cause alignment issues; in the case of Tranquil Blue you can see little red lines.
+//   - Your SynthMaster skins folder must be have read/write access.
+//   - You may need to reboot your DAW to see skin changes.
+//   - Hasn't been tested on PC.
+//   - There are some skins this might not work on; if your DAW crashes, you win!
+// 
+// USAGE:
+//   - Configure your settings below.
+//   - Install NodeJS. This should also install NPM.
+//   - Install the dependencies.
+//   - Run the script! The new folder should magically appear in your SynthMaster skins skinsFolder.
 //
-// Configure your options below:
+// DEPENDENCIES:
+//   port install GraphicsMagick 		# or brew, or install manually; also add executable to path
+//   npm install						# loads node dependies into a node_modules subfolder
+//
 
+////// CONFIGURATION //////
 const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
-const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge
-const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder; must have write access!
+const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
+const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
+const fontAdjust = -1; // Text is magnified too; this adjusts all font label pitches up (+1 e.g.) or down (-1 e.g.) after magnification
 const debug = false;
-
-/////////
+////// CONFIGURATION //////
 
 const fs = require("fs-extra");
 const run = require("child_process").execSync;
@@ -34,7 +50,7 @@ if(!fs.existsSync(sourceXml))
 console.log("Ensuring target folder exists");
 fs.ensureDirSync(targetFolder);
 
-// I'm not using an XML parser because some of the skins have malformed XML
+// I'm not using an XML parser because some of the skins have malformed XML which croaks major froggage
 console.log("Processing XML");
 var xml = fs.readFileSync(sourceXml, "UTF8");
 
@@ -46,7 +62,7 @@ var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
 var radiusRegEx = new RegExp(/(radius\s*=\s*")([^"]+)(?=")/gmi);
 
 // Process each XML statement from < to >
-// This doesn't have to be fast. Chill.
+// This is not fast code. It doesn't have to be. So chill.
 xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 {
 	// If InterfaceDefinition, set targetName and uuid and stop
@@ -70,7 +86,8 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 		// If contains size, magnify and floor value
 		attributes = attributes.replace(sizeRegEx, function(all, left, value)
 		{
-			return left + Math.floor(value * magnification);
+			var newSize = Math.floor(value * magnification + fontAdjust);
+			return left + newSize;
 		});
 
 		attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
@@ -86,9 +103,10 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 // Save XML
 fs.writeFileSync(targetXml, xml, {encoding:"UTF8"});
 
+// Enlarge IMAGES
+// Find all image tags in XML
+// Use them to identify all images and determine if they are a spritesheet
 console.log("Resizing images");
-
-// Find all image tags and use them to find all images and govern their magnification method
 var waitingFor = 0;
 xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 {
@@ -98,6 +116,7 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 	if(imageName == null)
 		return;
 
+	// Load image
 	var imagePath = (sourceFolder + "/" + imageName);//.replace(/ /g, "\\ ");
 	var image = gm(imagePath);
 
@@ -116,7 +135,8 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 		{
 			var width =  Math.ceil(value.width * magnification);
 			var height = Math.ceil(value.height * magnification);
-			console.log(" - Enlarging image " + imageName + " to " + width + "x" + height);
+			if(debug)
+				console.log(" - Enlarging image " + imageName + " to " + width + "x" + height);
 			image.resize(width, height, "!");
 		}
 
@@ -128,8 +148,9 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 			var height = Math.ceil(newCellHeight * count);
 			var width = Math.ceil(value.width * magnification);
 
-			console.log(" - Enlarging spritesheet " + imageName + " with " + count + " images to " + width + "x" + height +
-			 " (cel height grows from " + oldCellHeight + " to " + newCellHeight + ")");
+			if(debug)
+				console.log(" - Enlarging spritesheet " + imageName + " with " + count + " images to " + width + "x" + height +
+					 " (cel height grows from " + oldCellHeight + " to " + newCellHeight + ")");
 
 			image.resize(width, height, "!");
 		}
@@ -145,7 +166,9 @@ if(waitingFor > 0)
 function complete()
 {
 	if(--waitingFor <= 0)
-		console.log("New skin complete. No guarantee it works!");
+		console.log("COMPLETE!\nNew skin created:" + targetFolder);
+	else if(!debug) 
+		process.stdout.write(".");
 }
 
 function logError(msg)
@@ -168,7 +191,7 @@ function replacePairedAttr(attributes, firstRegEx, secondRegEx)
 		attributes = attributes.replace(firstRegEx, function(all, left, value)
 		{
 			oldFirst = parseInt(value);
-			newFirst = Math.round(oldFirst * magnification);
+			newFirst = Math.floor(oldFirst * magnification);
 			return left + newFirst;
 		});
 		attributes = attributes.replace(secondRegEx, function(all, left, oldSecond)
@@ -180,7 +203,7 @@ function replacePairedAttr(attributes, firstRegEx, secondRegEx)
 	// If contains unpaired second, magnify and round value -- don't expect to see this, but just in case
 	else attributes = attributes.replace(secondRegEx, function(all, left, alue)
 	{
-		return left + Math.round(value * magnification);
+		return left + Math.floor(value * magnification);
 	});
 
 	return attributes;
