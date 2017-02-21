@@ -1,0 +1,16 @@
+{
+  "name": "enlargesmskins",
+  "version": "1.0.0",
+  "description": "",
+  "main": "enlargeSynthMasterSkin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^2.0.0",
+    "gm": "^1.23.0",
+    "uuid": "^3.0.1"
+  }
+}
