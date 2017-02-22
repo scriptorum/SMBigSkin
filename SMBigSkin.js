@@ -8,11 +8,12 @@
 //
 
 ////// CONFIGURATION //////
-// const sourceName = "Default Skin Orange"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
-const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
-const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
-const fontAdjust = -0.10 ; // This value is added to the magnification before being applied to text labels; raise or lower to adjust relative text enlargement
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
+const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new skin folder will be created
+const magnification = 1.3; // Magnification level, such as 1.5 (150%) and 2 (200%)
+const fontAdjust = 0 ; // Additional change to magnification just for text labels
+const colorToRemove = "red"; // Seam color to remove; can be null, or a string with a color name ("red") or HTML color ("#FFFFFF")
+const replacementColor = "black"; // Color to replace seam with, same as above
 ////// CONFIGURATION //////
 
 const debug = false; // Prints out some useless information while processing
@@ -126,14 +127,16 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 			return;
 		}
 
-		// Normal file: enlarge image by flat percent increase
+		var width = 0;
+		var height = 0;
+
+		// Normal file: enlarge image by flat percent increase, round up
 		if(count == null || count == 1)
 		{
-			var width =  Math.ceil(value.width * magnification);
-			var height = Math.ceil(value.height * magnification);
+			width =  Math.ceil(value.width * magnification);
+			height = Math.ceil(value.height * magnification);
 			if(debug)
 				console.log(" - Enlarging image " + imageName + " to " + width + "x" + height);
-			image.resize(width, height, "!");
 		}
 
 		// Multi-image file: enlarge image by determining new integer height per cell and multiplying by number of cells
@@ -141,21 +144,23 @@ xml = xml.replace(/<Image\s+[^>]+>/gmi, function (tag)
 		{
 			var oldCellHeight = value.height / count;
 			var newCellHeight = Math.ceil( oldCellHeight * magnification);
-			var height = Math.ceil(newCellHeight * count);
-			var width = Math.ceil(value.width * magnification);
+			height = Math.ceil(newCellHeight * count);
+			width = Math.ceil(value.width * magnification);
 
 			if(debug)
 				console.log(" - Enlarging spritesheet " + imageName + " with " + count + " images to " + width + "x" + height +
 					 " (cel height grows from " + oldCellHeight + " to " + newCellHeight + ")");
-
-			image.resize(width, height, "!");
 		}
 
+		if(colorToRemove != null)
+			image.fill(replacementColor).opaque(colorToRemove);
+		image.resize(width, height, "!");
 		image.write(targetFolder + "/" + imageName, function(err) { if(err) logError(err); complete(); });
 	});	
 });
 
-// If hate this, but I hate even more organizing everything into an array and using a third party library to manage callback hell
+// If hate this, but I hate even more organizing everything into an array
+// and using a third party library to manage callback hell
 if(waitingFor > 0)
 	console.log("Waiting for processes to finish");
 
@@ -191,24 +196,25 @@ function replacePairedAttr(attributes, firstRegEx, secondRegEx, unscaledAmount)
 		attributes = attributes.replace(firstRegEx, function(all, left, value)
 		{
 			oldFirst = parseInt(value);
-			newFirst = Math.floor(oldFirst * magnification);
+			newFirst = Math.ceil(oldFirst * magnification);
+
 			return left + newFirst;
 		});
 		attributes = attributes.replace(secondRegEx, function(all, left, oldSecond)
 		{				
 			var oldSize = oldSecond - oldFirst;
 			if(unscaledAmount == 0)
-				return left + (Math.ceil(oldSize * magnification + newFirst));
+				return left + (Math.ceil(oldSize * magnification) + newFirst);
 
 			var scaledAmount = oldSize - unscaledAmount;
-			return left + (Math.ceil(unscaledAmount + scaledAmount * magnification + newFirst));
+			return left + (unscaledAmount + Math.ceil(scaledAmount * magnification) + newFirst);
 		});
 	}
 
 	// If contains unpaired second, magnify and round value -- don't expect to see this, but just in case
-	else attributes = attributes.replace(secondRegEx, function(all, left, alue)
+	else attributes = attributes.replace(secondRegEx, function(all, left, value)
 	{
-		return left + Math.floor(value * magnification);
+		return left + Math.ceil(value * magnification);
 	});
 
 	return attributes;
