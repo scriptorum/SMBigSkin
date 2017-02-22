@@ -1,34 +1,22 @@
 #!/usr/bin/env node
 //
-// Enlarges a SynthMaster skin by the supplied magnification.
-// 
-// CAVEATS:
-//   - Images may be a little blurry, that's normal. Don't panic.
-//	 - Set magnification to your desired scaling. 2.0 means 200% enlargement, for example.
-// 	 - Non-image text labels are magnified as well; for fine tuning font sizes, set fontAdjust; e.g.: magnification 2.0 and fontAdjust -.5 means everything will be enlarged 200% except for fonts, which will be enlarged 150%
-//   - Your SynthMaster skins folder must be have read/write access.
-//   - You may need to reboot your DAW to see skin changes.
-//   - Hasn't been tested on PC. Or really, you know, much at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
-//   - There are some skins this might not work on; if your DAW crashes, you win! 
-// 
-// USAGE:
-//   - Configure your settings below.
-//   - Install NodeJS. This should also install NPM.
-//   - Install the dependencies.
-//   - Run the script! The new folder should magically appear in your SynthMaster skins skinsFolder.
+// SMBigSkin 
+// Copyright (C) 2017 Eric W. Lund
 //
-// DEPENDENCIES:
-//   port install GraphicsMagick 		# or brew, or install manually; also add executable to path
-//   npm install						# loads node dependies into a node_modules subfolder
+// See github page for instructions and license.
+// https://github.com/scriptorum/SMBigSkin
 //
 
 ////// CONFIGURATION //////
+// const sourceName = "Default Skin Orange"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
 const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new folder will be created with the magnification in the name
 const magnification = 1.5; // 1 = 100%, 1.5 = 150%, 2.0 = 200%
 const fontAdjust = -0.10 ; // This value is added to the magnification before being applied to text labels; raise or lower to adjust relative text enlargement
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
-const debug = false;
 ////// CONFIGURATION //////
+
+const debug = false; // Prints out some useless information while processing
+const keyScaleGraphHeight = 128; // Amount of unscalableheight in a key scaler view
 
 const fs = require("fs-extra");
 const run = require("child_process").execSync;
@@ -57,16 +45,16 @@ var topRegEx = new RegExp(/(top\s*=\s*")([^"]+)(?=")/gmi);
 var bottomRegEx = new RegExp(/(bottom\s*=\s*")([^"]+)(?=")/gmi);
 var leftRegEx = new RegExp(/(left\s*=\s*")([^"]+)(?=")/gmi);
 var rightRegEx = new RegExp(/(right\s*=\s*")([^"]+)(?=")/gmi);
-var sizeRegEx = new RegExp(/(size\s*=\s*")([^"]+)(?=")/gmi);
-var widthRegEx = new RegExp(/((?:arrowWidth|buttonWidth)\s*=\s*")([^"]+)(?=")/gmi);
-var miscRegEx = new RegExp(/((?:radius|rowHeight)\s*=\s*")([^"]+)(?=")/gmi);
+var fontSizeRegEx = new RegExp(/(fontSize\s*=\s*")([^"]+)(?=")/gmi);
+var keysRegEx = new RegExp(/((?:whiteKeysHeight|whiteKeysWidth|blackKeysHeight|blackKeysWidth)\s*=\s*")([^"]+)(?=")/gmi);
+var miscRegEx = new RegExp(/((?:radius|arrowWidth|buttonWidth|waveformSize|rowHeight|AxisWidth|Spacing)\s*=\s*")([^"]+)(?=")/gmi);
 
 // Process each XML statement from < to >
 // This is not fast code. It doesn't have to be. So chill.
 xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 {
 	// If InterfaceDefinition, set targetName and uuid and stop
-	if(tag.toLowerCase() == "interfacedefinition")
+	if(tag == "InterfaceDefinition")
 	{
 		attributes = attributes.replace(/name\s*=\s*"[^"]+"/mi, 'name="' + targetName + '"');
 		attributes = attributes.replace(/id\s*=\s*"[^"]+"/mi, 'id="' + uuid.v4() + '"');
@@ -77,32 +65,29 @@ xml = xml.replace(/<(\S+)\s+([^>]+)\s*>/gm, function(all, tag, attributes)
 		if(debug)
 			console.log("FOUND tag:" + tag + " attr:" + attributes);
 
-		// Magnify radius and matrix row height
+		// Magnify font size
+		attributes = attributes.replace(fontSizeRegEx, function(all, left, value)
+		{
+			return left + Math.floor(value * (magnification + fontAdjust));
+
+		});
+		// Magnify key scaler items
+		attributes = attributes.replace(keysRegEx, function(all, left, value)
+		{
+			return left + (value * magnification);
+		});
+
+		// Magnify top and bottom
+		attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx, tag == "CKeyScalerView" ? keyScaleGraphHeight : 0)
+
+		// Magnify left and right
+		attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx, 0);
+
+		// Magnify a bunch of other miscellanious fields
 		attributes = attributes.replace(miscRegEx, function(all, left, value)
 		{
 			return left + Math.round(value * magnification);
 		});
-
-		// Magnify font size
-		// Round down by default here
-		attributes = attributes.replace(sizeRegEx, function(all, left, value)
-		{
-			var newSize = Math.floor(value * (magnification + fontAdjust));
-			return left + newSize;
-		});
-
-		// Magnify tab button and arrow sizes
-		attributes = attributes.replace(widthRegEx, function(all, left, value)
-		{
-			var newSize = Math.round(value * (magnification));
-			return left + newSize;
-		});
-
-		// Magnify top and bottom
-		attributes = replacePairedAttr(attributes, topRegEx, bottomRegEx);
-
-		// Magnify left and right
-		attributes = replacePairedAttr(attributes, leftRegEx, rightRegEx);
 	}
 
 	if(debug)
@@ -192,7 +177,11 @@ function logError(msg)
 // The second attribute (bottom/right) is calculated independently, so it's guaranteed to match the image/sprite dimensions.
 // Expect regex to have two captures: all (everything to the left of the value) and value (the value between quotes).
 // The end quote should be matched but not replaced by using a negative lookahead assertion.
-function replacePairedAttr(attributes, firstRegEx, secondRegEx)
+// If an unscaledAmount is supplied (!=0), this amount is excepted from the magnification. Notably, 
+// KeyScalers are fixed with a 128 pixel high graph that doesn't seem to be scalable from the XML, so
+// this prevents the viewport from clipping or showing a black box.
+// 
+function replacePairedAttr(attributes, firstRegEx, secondRegEx, unscaledAmount)
 {
 	// If contains first, magnify and round value, then adjust bottom by the rounded old difference
 	if(attributes.match(firstRegEx))
@@ -207,7 +196,12 @@ function replacePairedAttr(attributes, firstRegEx, secondRegEx)
 		});
 		attributes = attributes.replace(secondRegEx, function(all, left, oldSecond)
 		{				
-			return left + (Math.ceil((oldSecond - oldFirst) * magnification + newFirst));
+			var oldSize = oldSecond - oldFirst;
+			if(unscaledAmount == 0)
+				return left + (Math.ceil(oldSize * magnification + newFirst));
+
+			var scaledAmount = oldSize - unscaledAmount;
+			return left + (Math.ceil(unscaledAmount + scaledAmount * magnification + newFirst));
 		});
 	}
 
