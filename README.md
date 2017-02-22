@@ -14,12 +14,12 @@
   - Download the two js and json files into a folder. If you have git, you can do this with ```git clone https://github.com/scriptorum/SMBigSkin.git```.
   - Configure your settings in the SMBigSkin.js script. 
   
-    ```javascript
-    const sourceName = "sT-Tranquil Blue";
-    const magnification = 1.5;
-    const fontAdjust = -0.10;
-    const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins";
-    ```
+      ```javascript
+      const sourceName = "sT-Tranquil Blue";
+      const magnification = 1.5;
+      const fontAdjust = -0.10;
+      const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins";
+      ```
     
     - Set *skinsFolder* to the location of your SynthMaster skins.
     - Set *sourceName* to the name of the folder containing the skin you want to resize.
