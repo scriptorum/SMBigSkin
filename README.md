@@ -4,7 +4,7 @@
 ##INSTALL
 Make sure your SynthMaster skins folder is read and writable.  On Windows you might find this folder at`C:\Program Files\KV331 Audio\SynthMaster\Resources\Skins` and on OSX at `/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins`.
 
-There are some skins in there with unhelpful names (such as New Skin ###). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of interface.xml in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```.
+There are some skins in there with unhelpful names (such as *New Skin ###*). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of *interface.xml* in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```.
 
 Download the **SMBigSkin.js** and **package.json** files into a folder. If you have git, you can do this with `git clone https://github.com/scriptorum/SMBigSkin.git`.
 
@@ -22,7 +22,7 @@ Configure your settings in the **SMBigSkin.js** script.
   - (Optional) Set *fontAdjust* to `0` if you want text labels to scale evenly with the everything else. Otherwise supply a percentage adjustment. `-0.10`, for instance, will set text labels to 10% less magnification than you specified for magnification.
   - (Optional) Many themes have alignment issues that cause visible seams from the background bleeding through. One way to address this is by recoloring the seams. Set *colorToRemove* to the seam color, and set *replacementColor* to a color that blends with the foreground. You can set these to `null` if you don't want this color replacement to occur. Otherwise supply a string with a color name (e.g., `"blue"`) or an HTML color value (e.g., `"#FF8500"`).
   
-And now you can run the script ```./SMBigSkin.js```. After it says COMPLETE, the new folder should magically appear in your SynthMaster skins skinsFolder and is ready to test. If you want to enlarge a different skin or create different sizes, just reconfigure and rerun. You can throw any of these generated skin folders into the trash if you don't want them showing up in your SynthMaster Global Skins list any more. Careful not to trash your originals, particularly the Default skin!
+And now you can run the script `./SMBigSkin.js`. After it says COMPLETE, the new folder should magically appear in your SynthMaster skins skinsFolder and is ready to test. If you want to enlarge a different skin or create different sizes, just reconfigure and rerun. You can throw any of these generated skin folders into the trash if you don't want them showing up in your SynthMaster Global Skins list any more. Careful not to trash your originals, particularly the Default skin!
 
 You may need to reboot your DAW to see skin changes.
 
