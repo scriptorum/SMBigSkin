@@ -12,7 +12,7 @@ This script requires [NodeJS](https://nodejs.org/en/), so install it if needed. 
 
 The script also requires [Graphics Magick](http://www.graphicsmagick.org/). You can install it manually, with homebrew (`brew install graphicsmagick`), or MacPorts (`port install GraphicsMagick`). Make sure the application is added to your PATH so you can run it from the command line.
 
-Now you can tell NPM to install the package dependcies. (`npm install`) This will create a *node_modules* subfolder and download some necessary NodeJS packages into it.
+Now you can tell NPM to install the package dependencies. (`npm install`) This will create a *node_modules* subfolder and download some necessary NodeJS packages into it.
 
 ##CONFIGURE AND RUN
 Configure your settings in the **SMBigSkin.js** script.
