@@ -1,5 +1,5 @@
 # SMBigSkin
-[SynthMaster](http://www.synthmaster.com/) is a soft-synth VST instrument. It's a great synth, but the the screen size is a bit small for my liking. Rather than creating a new skin by hand, I wrote a script to resize an existing skin. (Which probably didn't save me any time.) This is a non-destructive resize: a new skin is created at the desired size which you can select from inside the VST.
+[SynthMaster](http://www.synthmaster.com/) is a soft-synth VST instrument. It's a great synth, but the the screen size is a bit small for my liking. Rather than creating a new skin by hand, I wrote a script to resize an existing skin. (Which probably didn't save me any time.) **SMBigSkin** is a non-destructive resize: a new skin is created at the desired size, which you can then select from inside the VST by right clicking and selecting *Change Global Skin*.
 
 ##INSTALL
 Make sure your SynthMaster skins folder is read and writable.  On Windows you might find this folder at`C:\Program Files\KV331 Audio\SynthMaster\Resources\Skins` and on OSX at `/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins`.
