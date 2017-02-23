@@ -6,7 +6,7 @@ Make sure your SynthMaster skins folder is read and writable.  On Windows you mi
 
 There are some skins in there with unhelpful names (such as *New Skin ###*). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of *interface.xml* in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```.
 
-Download the **SMBigSkin.js** and **package.json** files into a folder. If you have git, you can do this with `git clone https://github.com/scriptorum/SMBigSkin.git`.
+Download the *SMBigSkin.js* and *package.json* files into a folder. If you have git, you can do this with `git clone https://github.com/scriptorum/SMBigSkin.git`.
 
 This script requires [NodeJS](https://nodejs.org/en/), so install it if needed. Also install NPM if NodeJS for some wacky reason didn't include it.
 
@@ -15,7 +15,7 @@ The script also requires [Graphics Magick](http://www.graphicsmagick.org/). You 
 Now you can tell NPM to install the package dependencies. (`npm install`) This will create a *node_modules* subfolder and download some necessary NodeJS packages into it.
 
 ##CONFIGURE AND RUN
-Configure your settings in the **SMBigSkin.js** script.
+Configure your settings in the *SMBigSkin.js* script.
   - Set *skinsFolder* to the location of your SynthMaster skins.
   - Set *sourceName* to the name of the folder containing the skin you want to resize. (e.g., `"Default"`).
   - Set *magnification* to your desired scaling amount. (e.g., `1.2` is 120%, or 20% bigger). Less than 1.0 will shrink things, which now that I think of it is completely untested. The enlargement process tends to make images a little blurry, but that's graphics for ya. If you're having a lot of seam issues, a different magnification could help.
