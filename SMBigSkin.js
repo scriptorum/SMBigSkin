@@ -9,23 +9,47 @@
 
 ////// CONFIGURATION //////
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
-const sourceName = "sT-Tranquil Blue"; // Name of folder containing skin you want to enlarge, new skin folder will be created
-const magnification = 1.3; // Magnification level, such as 1.5 (150%) and 2 (200%)
-const fontAdjust = 0 ; // Additional change to magnification just for text labels
-const colorToRemove = "red"; // Seam color to remove; can be null, or a string with a color name ("red") or HTML color ("#FFFFFF")
-const replacementColor = "black"; // Color to replace seam with, same as above
+var skin = "Default Skin"; // Name of folder containing skin you want to enlarge, new skin folder will be created
+var magnification = 1.4; // Magnification level, such as 1.5 (150%) and 2 (200%)
+var fontAdjust = 0 ; // Additional change to magnification just for text labels
+var colorToRemove = "red"; // Seam color to remove; can be null, or a string with a color name ("red") or HTML color ("#FFFFFF")
+var replacementColor = "black"; // Color to replace seam with, same as above
 ////// CONFIGURATION //////
+
 
 const debug = false; // Prints out some useless information while processing
 const keyScaleGraphHeight = 128; // Amount of unscalableheight in a key scaler view
 
 const fs = require("fs-extra");
-const run = require("child_process").execSync;
 const gm = require("gm");
 const uuid = require("uuid");
 
-const targetName = sourceName + " " + magnification * 100 + "%"; 
-const sourceFolder = skinsFolder + "/" + sourceName;
+// Check for command line arguments
+var args = process.argv.slice(2);
+if(args.length > 0)
+{
+	var val = args.shift();
+	if(val.match(/^(help|--?h)/i))
+	{
+		console.log('npm start [<skin> [<magnification> [<fontAdjust> [<colorToRemove> <replacementColor>]]]]');
+		return;
+	}
+	skin = val;
+}
+if(args.length > 0)
+	magnification = parseFloat(args.shift());
+if(args.length > 0)
+	fontAdjust = parseFloat(args.shift());
+if(args.length > 0)
+	colorToRemove = args.shift();
+if(args.length > 0)
+	replacementColor = args.shift();
+
+console.log("Processing skin:" + skin + " magnification:" + magnification + " fontAdjust:" + fontAdjust + 
+	" colorSwap:" + colorToRemove + "->" + replacementColor);
+
+const targetName = skin + " " + magnification * 100 + "%"; 
+const sourceFolder = skinsFolder + "/" + skin;
 const targetFolder = skinsFolder + "/" + targetName;
 const interfaceName = "interface.xml";
 const sourceXml = sourceFolder + "/" + interfaceName;
