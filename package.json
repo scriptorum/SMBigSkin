@@ -1,13 +1,13 @@
 {
-  "name": "enlargesmskins",
+  "name": "SMBigSkin",
   "version": "1.0.0",
   "description": "",
-  "main": "enlargeSynthMasterSkin.js",
+  "main": "SMBigSkin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "fs-extra": "^2.0.0",
     "gm": "^1.23.0",
