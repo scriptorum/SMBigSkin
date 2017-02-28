@@ -26,8 +26,7 @@ And now you can run the script (`./SMBigSkin.js` or `npm start`). After it says 
 
 Alternately, you can set the parameters via command line, which will override the configured settings. However, you must still ensure *skinsFolder* is set properly. The arguments are `[<skin> [<magnification> [<fontAdjust> [<colorToRemove> <replacementColor>]]]]`. You should probably put the skin name in quotes or make sure to escape any spaces. For example, `npm start "Default Skin" 1.2`.
 
-You may need to reboot your DAW to see skin changes.
-
-This hasn't been tested on PC. Or really, you know, much at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
-
-There are some skins this might not work on; if your DAW crashes, you win! 
+##NOTES
+* Only tested on SynthMaster 2.8 on Mac. It may not work on earlier versions. Or on PC. Or really, you know, at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
+* You may need to reboot your DAW to see skin changes.
+* There are some skins this might not work on; if your DAW crashes, you win! 
