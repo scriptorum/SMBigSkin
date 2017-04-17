@@ -1,7 +1,7 @@
 # SMBigSkin
 [SynthMaster](http://www.synthmaster.com/) is a soft-synth VST instrument. It's a great synth, but the the screen size is a bit small for my liking. Rather than creating a new skin by hand, I wrote a script to resize an existing skin. (Which probably didn't save me any time.) **SMBigSkin** is a non-destructive resize: a new skin is created at the desired size, which you can then select from inside the VST by right clicking and selecting *Change Global Skin*.
 
-##INSTALL
+## INSTALL
 Make sure your SynthMaster skins folder is read and writable.  On Windows you might find this folder at`C:\Program Files\KV331 Audio\SynthMaster\Resources\Skins` and on OSX at `/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins`.
 
 There are some skins in there with unhelpful names (such as *New Skin ###*). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of *interface.xml* in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```.
@@ -14,7 +14,7 @@ The script also requires [Graphics Magick](http://www.graphicsmagick.org/). You 
 
 Now you can tell NPM to install the package dependencies (`npm install`). This will scan *package.json* for the dependencies, and install them into a new *node_modules* subfolder.
 
-##CONFIGURE AND RUN
+## CONFIGURE AND RUN
 Configure your settings in the *SMBigSkin.js* script.
   - (Mandatory) Set *skinsFolder* to the location of your SynthMaster skins.
   - Set *skin* to the name of the folder containing the skin you want to resize. (e.g., `"Default Skin"`).
@@ -26,7 +26,7 @@ And now you can run the script (`./SMBigSkin.js` or `npm start`). After it says 
 
 Alternately, you can set the parameters via command line, which will override the configured settings. However, you must still ensure *skinsFolder* is set properly. The arguments are `[<skin> [<magnification> [<fontAdjust> [<colorToRemove> <replacementColor>]]]]`. You should probably put the skin name in quotes or make sure to escape any spaces. For example, `npm start "Default Skin" 1.2`.
 
-##NOTES
+## NOTES
 * Only tested on SynthMaster 2.8 on Mac. It may not work on earlier versions. Or on PC. Or really, you know, at all. Caveat Emptor, No Guarantees, Use At Your Own Risk, Etc.
 * You may need to reboot your DAW to see skin changes.
 * There are some skins this might not work on; if your DAW crashes, you win! 
