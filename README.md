@@ -4,15 +4,18 @@
 ## INSTALL
 Make sure your SynthMaster skins folder is read and writable.  On Windows you might find this folder at`C:\Program Files\KV331 Audio\SynthMaster\Resources\Skins` and on OSX at `/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins`.
 
-There are some skins in there with unhelpful names (such as *New Skin ###*). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of *interface.xml* in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```.
+There are some skins in there with unhelpful names (such as *New Skin ###*). You may wish to rename these folder to something more appropriate, such as the name of the skin itself. The skin name is in the first line of *interface.xml* in the folder, e.g.: ```<InterfaceDefinition name="Default Skin-Blue"/>```. 
 
 Download the *SMBigSkin.js* and *package.json* files into a folder. If you have git, you can do this with `git clone https://github.com/scriptorum/SMBigSkin.git`.
 
-This script requires [NodeJS](https://nodejs.org/en/), so install it if needed. Also install NPM if NodeJS for some wacky reason didn't include it.
+This script requires [NodeJS](https://nodejs.org/en/), so install it if needed. This should also install the command *npm*.
 
 The script also requires [Graphics Magick](http://www.graphicsmagick.org/). You can install it manually, with homebrew (`brew install graphicsmagick`). (On Mac, you could also use MacPorts: `port install GraphicsMagick`). Make sure the application is added to your PATH so you can run it from the command line.
 
 Now you can tell NPM to install the package dependencies (`npm install`). This will scan *package.json* for the dependencies, and install them into a new *node_modules* subfolder.
+
+You probably will need to open up write access to the Skins folder for the script to create the new skin in it. On Windows, navigate to the Resources folder, right click on Skins, select Properties, and add write permissions. On Mac, you can do this on command line: `sudo chmod -R 777 Skins`.
+
 
 ## CONFIGURE AND RUN
 Configure your settings in the *SMBigSkin.js* script.
