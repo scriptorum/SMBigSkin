@@ -9,13 +9,13 @@
 
 ////// CONFIGURATION //////
 const skinsFolder = "/Library/Application Support/KV331 Audio/SynthMaster/Resources/Skins"; // Location of SM skins folder
+//const skinsFolder = "C:\\Program Files\\KV331 Audio\\SynthMaster\\Resources\\Skins";
 var skin = "Default Skin"; // Name of folder containing skin you want to enlarge, new skin folder will be created
 var magnification = 1.4; // Magnification level, such as 1.5 (150%) and 2 (200%)
 var fontAdjust = 0 ; // Additional change to magnification just for text labels
 var colorToRemove = "red"; // Seam color to remove; can be null, or a string with a color name ("red") or HTML color ("#FFFFFF")
 var replacementColor = "black"; // Color to replace seam with, same as above
 ////// CONFIGURATION //////
-
 
 const debug = false; // Prints out some useless information while processing
 const keyScaleGraphHeight = 128; // Amount of unscalableheight in a key scaler view
